@@ -26,6 +26,9 @@
 
 import Foundation
 
+public typealias BoundingBoxf = BoundingBox<Float>
+public typealias BoundingBoxi = BoundingBox<Int64>
+
 /// A type representing an axis aligned 3D bounding box
 ///
 /// This type represents an axis aligned 3D box. It is uniquely defined by its minmum and its maximum point.
