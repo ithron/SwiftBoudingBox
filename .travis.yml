@@ -31,6 +31,4 @@ matrix:
       script:
         - swift --version
         - swift package update
-        - swift package test --enable-code-coverage
-      after_success:
-        - bash <(curl -s https://codecov.io/bash)
+        - swift package test
