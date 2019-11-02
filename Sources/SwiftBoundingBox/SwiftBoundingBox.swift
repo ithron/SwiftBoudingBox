@@ -70,7 +70,7 @@ public struct BoundingBox<T: SIMDScalar & Numeric & Comparable> {
   /// - `width`: the width, i.e. length along the x-axis
   /// - `height`: the height, i.e. length along the y-axis
   /// - `depth`: the depth, i.e. length along the z-axis
-  public struct Size {
+  public struct Size : Equatable {
     /// The width of the box, i.e. length alogn the x-axis
     public let width: Scalar
     /// The height of the box, i.e. length alogn the y-axis
