@@ -8,12 +8,14 @@ matrix:
     - os: osx
       osx_image: xcode_11.2
       language: swift
+      sudo: required
       install:
         - mkdir swift
         - wget https://swift.org/builds/${SWIFT_BRANCH}/xcode/${SWIFT_VERSION}/${SWIFT_VERSION}-osx.pkg
-        - installer -pkg ${SWIFT_VERSION}-osx.pkg -target swift
-        - export PATH="swift/Library/Developer/Toolchains/${SWIFT_VERSION}.xctoolchain/usr/bin:${PATH}"
+        - sudo installer -pkg ${SWIFT_VERSION}-osx.pkg -target /
+        - export PATH="/Library/Developer/Toolchains/${SWIFT_VERSION}.xctoolchain/usr/bin:${PATH}"
       script:
+        - swift --version
         - swift package update
         - swift package test --enable-code-coverage
       after_success:
@@ -27,6 +29,7 @@ matrix:
         - curl https://swift.org/builds/${SWIFT_BRANCH}/ubuntu1804/${SWIFT_VERSION}/${SWIFT_VERSION}-ubuntu18.04.tar.gz | tar xz -C swift &> /dev/null
         - export PATH="$(pwd)/swift/${SWIFT_VERSION}-ubuntu18.04/usr/bin:${PATH}"
       script:
+        - swift --version
         - swift package update
         - swift package test --enable-code-coverage
       after_success:
