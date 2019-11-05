@@ -9,9 +9,6 @@
 extension SIMD3 where Scalar: FloatingPoint {
   /// The squared length of the vector, i.e. the squared 2-norm
   var squaredLength: Scalar { (self * self).sum() }
-
-  /// The eucliedean length of the vector, i.e. the 2-norm
-  var length: Scalar { squaredLength.squareRoot() }
 }
 
 /// Extend fixed width integer SIMD3 types to have a squared length property
