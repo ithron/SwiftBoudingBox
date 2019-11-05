@@ -105,6 +105,70 @@ extension SwiftBoundingBoxTestImpl where Scalar: FloatingPoint {
     XCTAssertEqual(bbox.squaredDistance(toPoint: point), 0)
     XCTAssertEqual(bbox.distance(toPoint: point), 0)
   }
+  
+  func testIfPointOnSurfaceHasDistanceZero() {
+    let bbox = BBox(minPoint: Point(repeating: 0),
+                    maxPoint: Point(repeating: 2))
+    
+    let point = Point(2, 1, 0)
+    
+    XCTAssertEqual(bbox.squaredDistance(toPoint: point), Scalar.zero, accuracy: Scalar.zero.ulp)
+    XCTAssertEqual(bbox.distance(toPoint: point), Scalar.zero, accuracy: Scalar.zero.ulp)
+  }
+  
+  func testIfPointsOutsideHaveCorrectDistances() {
+    
+    let minPoint = Point.zero
+    let maxPoint = Point(repeating: 1)
+    
+    let pointsAndDistances : [(Point, Scalar)] = [
+      (Point(minPoint.x - 3, minPoint.y    , minPoint.z    ), 3),
+      (Point(maxPoint.x + 3, minPoint.y    , minPoint.z    ), 3),
+      (Point(minPoint.x    , minPoint.y - 1, minPoint.z    ), 1),
+      (Point(minPoint.x    , maxPoint.y + 1, minPoint.z    ), 1),
+      (Point(minPoint.x    , minPoint.y    , minPoint.z - 2), 2),
+      (Point(minPoint.x    , minPoint.y    , maxPoint.z + 2), 2),
+      (Point(minPoint.x - 2, minPoint.y - 2, minPoint.z - 2), Scalar(12).squareRoot()),
+      (Point(maxPoint.x + 2, maxPoint.y + 2, maxPoint.z + 2), Scalar(12).squareRoot()),
+    ]
+    
+    let bbox = BBox(minPoint: minPoint, maxPoint: maxPoint)
+    
+    for (point, distance) in pointsAndDistances {
+      let distSq = distance * distance
+      XCTAssertEqual(bbox.squaredDistance(toPoint: point), distSq, accuracy: Scalar.zero.ulp)
+      XCTAssertEqual(bbox.distance(toPoint: point), distance, accuracy: Scalar.zero.ulp)
+    }
+  }
+  
+  func testIfPointsInsideHaveNegativeSignedDistance() {
+    let bbox = BBox(minPoint: Point.zero, maxPoint: Point(repeating: 1))
+    
+    let point = Point(repeating: Scalar(1)/Scalar(2))
+    
+    XCTAssertLessThan(bbox.signedSquaredDistance(toPoint: point), Scalar.zero)
+    XCTAssertLessThan(bbox.signedDistance(toPoint: point), Scalar.zero)
+  }
+  
+  func testIfPointsOutsideHavePositiveSignedDistance() {
+    let bbox = BBox(minPoint: Point.zero, maxPoint: Point(repeating: 1))
+    
+    let point = Point(repeating: 2)
+    
+    XCTAssertGreaterThan(bbox.signedSquaredDistance(toPoint: point), Scalar.zero)
+    XCTAssertGreaterThan(bbox.signedDistance(toPoint: point), Scalar.zero)
+  }
+  
+  func testIfPointInsideHasCorrectSignedDistance() {
+    let bbox = BBox(minPoint: Point.zero, maxPoint: Point(repeating: 1))
+    
+    let point = Point(repeating: Scalar(1)/Scalar(2))
+    let distanceSq = -Scalar(1)/Scalar(4)
+    let distance = -Scalar(1)/Scalar(2)
+    
+    XCTAssertEqual(bbox.signedSquaredDistance(toPoint: point), distanceSq, accuracy: Scalar.zero.ulp)
+    XCTAssertEqual(bbox.signedDistance(toPoint: point), distance, accuracy: Scalar.zero.ulp)
+  }
 }
 
 // MARK: - FixedWidthInteger Tests
@@ -137,6 +201,67 @@ extension SwiftBoundingBoxTestImpl where Scalar: FixedWidthInteger {
     let point = Point(repeating: 1)
     
     XCTAssertEqual(bbox.squaredDistance(toPoint: point), 0)
+  }
+  
+  func testIfPointOnSurfaceHasDistanceZero() {
+    let bbox = BBox(minPoint: Point(repeating: 0),
+                    maxPoint: Point(repeating: 2))
+    
+    let point = Point(2, 1, 0)
+    
+    XCTAssertEqual(bbox.squaredDistance(toPoint: point), Scalar.zero)
+  }
+  
+  func testIfPointsOutsideHaveCorrectDistances() {
+     
+     let minPoint = Point.zero
+     let maxPoint = Point(repeating: 1)
+     
+     let pointsAndDistances : [(Point, Scalar)] = [
+       (Point(minPoint.x - 3, minPoint.y    , minPoint.z    ), 9),
+       (Point(maxPoint.x + 3, minPoint.y    , minPoint.z    ), 9),
+       (Point(minPoint.x    , minPoint.y - 1, minPoint.z    ), 1),
+       (Point(minPoint.x    , maxPoint.y + 1, minPoint.z    ), 1),
+       (Point(minPoint.x    , minPoint.y    , minPoint.z - 2), 4),
+       (Point(minPoint.x    , minPoint.y    , maxPoint.z + 2), 4),
+       (Point(minPoint.x - 2, minPoint.y - 2, minPoint.z - 2), 12),
+       (Point(maxPoint.x + 2, maxPoint.y + 2, maxPoint.z + 2), 12),
+     ]
+     
+     let bbox = BBox(minPoint: minPoint, maxPoint: maxPoint)
+     
+     for (point, distSq) in pointsAndDistances {
+       XCTAssertEqual(bbox.squaredDistance(toPoint: point), distSq)
+     }
+   }
+}
+
+// MARK: - Signed FixedWidthInteger Tests
+extension SwiftBoundingBoxTestImpl where Scalar: FixedWidthInteger & SignedInteger {
+  
+  func testIfPointsInsideHaveNegativeSignedDistance() {
+    let bbox = BBox(minPoint: Point.zero, maxPoint: Point(repeating: 2))
+    
+    let point = Point(repeating: Scalar(1))
+    
+    XCTAssertLessThan(bbox.signedSquaredDistance(toPoint: point), Scalar.zero)
+  }
+  
+  func testIfPointsOutsideHavePositiveSignedDistance() {
+    let bbox = BBox(minPoint: Point.zero, maxPoint: Point(repeating: 1))
+    
+    let point = Point(repeating: 2)
+    
+    XCTAssertGreaterThan(bbox.signedSquaredDistance(toPoint: point), Scalar.zero)
+  }
+  
+  func testIfPointInsideHasCorrectSignedDistance() {
+    let bbox = BBox(minPoint: Point.zero, maxPoint: Point(repeating: 3))
+    
+    let point = Point(repeating: 2)
+    let distanceSq = Scalar(-1)
+    
+    XCTAssertEqual(bbox.signedSquaredDistance(toPoint: point), distanceSq)
   }
 }
 
@@ -186,6 +311,31 @@ final class SwiftBoundingBoxTests: XCTestCase {
   func testIfPointInsideBBHasDistanceZero() {
     testImplFloat.testIfPointInsideBBHasDistanceZero()
     testImplInt64.testIfPointInsideBBHasDistanceZero()
+  }
+  
+  func testIfPointOnSurfaceHasDistanceZero() {
+    testImplFloat.testIfPointOnSurfaceHasDistanceZero()
+    testImplInt64.testIfPointOnSurfaceHasDistanceZero()
+  }
+  
+  func testIfPointsOutsideHaveCorrectDistances() {
+    testImplFloat.testIfPointsOutsideHaveCorrectDistances()
+    testImplInt64.testIfPointsOutsideHaveCorrectDistances()
+  }
+  
+  func testIfPointsInsideHaveNegativeSignedDistance() {
+    testImplFloat.testIfPointsInsideHaveNegativeSignedDistance()
+    testImplInt64.testIfPointsInsideHaveNegativeSignedDistance()
+  }
+  
+  func testIfPointsOutsideHavePositiveSignedDistance() {
+    testImplFloat.testIfPointsOutsideHavePositiveSignedDistance()
+    testImplInt64.testIfPointsOutsideHavePositiveSignedDistance()
+  }
+  
+  func testIfPointInsideHasCorrectSignedDistance() {
+    testImplFloat.testIfPointInsideHasCorrectSignedDistance()
+    testImplInt64.testIfPointInsideHasCorrectSignedDistance()
   }
   
   static var allTests = [
