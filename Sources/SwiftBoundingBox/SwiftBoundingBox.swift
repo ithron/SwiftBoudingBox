@@ -71,7 +71,7 @@ public struct BoundingBox<T: SIMDScalar & Numeric & Comparable> {
   /// - `width`: the width, i.e. length along the x-axis
   /// - `height`: the height, i.e. length along the y-axis
   /// - `depth`: the depth, i.e. length along the z-axis
-  public struct Size : Equatable {
+  public struct Size: Equatable {
     /// The width of the box, i.e. length alogn the x-axis
     public let width: Scalar
     /// The height of the box, i.e. length alogn the y-axis
@@ -217,16 +217,16 @@ public extension BoundingBox where T: FloatingPoint {
   /// - Parameter point: point to compute the distance for
   /// - Returns: signed squared euclidean distance between `point` and the surface of the bounding box
   func signedSquaredDistance(toPoint point: Point) -> Scalar {
-    if contains(point: point) {
+    guard !contains(point: point) else {
       let dMin = point - minPoint
       let dMax = maxPoint - point
       
       let dist = min(dMin.min(), dMax.min())
       
-      return dist * dist
-    } else {
-      return squaredDistance(toPoint: point)
+      return -(dist * dist)
     }
+    
+    return squaredDistance(toPoint: point)
   }
   
   /// Computes the signed euclidean distance of a point to the surface of the bounding box
@@ -241,15 +241,14 @@ public extension BoundingBox where T: FloatingPoint {
   /// - Parameter point: point to compute the distance for
   /// - Returns: signed euclidean distance between `point` and the surface of the bounding box
   func signedDistance(toPoint point: Point) -> Scalar {
-    if contains(point: point) {
+    guard !contains(point: point) else {
       let dMin = point - minPoint
       let dMax = maxPoint - point
       
-      return min(dMin.min(), dMax.min())
-      
-    } else {
-      return distance(toPoint: point)
+      return -min(dMin.min(), dMax.min())
     }
+    
+    return distance(toPoint: point)
   }
 }
 
@@ -302,8 +301,8 @@ public extension BoundingBox where T: FixedWidthInteger {
 // MARK: - Operations where Scalar : FixedWidthInteger & SignedNumeric
 
 /// Extention adds implementatiions of common operations if `Scalar` conforms to `FixedWidthInteger`
-/// and `SignedNumeric`
-public extension BoundingBox where T: FixedWidthInteger & SignedNumeric {
+/// and `SignedInteger`
+public extension BoundingBox where T: FixedWidthInteger & SignedInteger {
   /// Computes the signed squared euclidean distance of a point to the surface of the bounding box
   ///
   /// The squared distance is zero iff `point` lies excaptly on the surface of the bounding box.
@@ -311,21 +310,21 @@ public extension BoundingBox where T: FixedWidthInteger & SignedNumeric {
   /// The squared distance is defined as the squared euclidean distance between `point` and the
   /// closest point on the surface of the bounding box.
   ///
-  /// Only available if `Scalar` conforms to `FixedWidthInteger` and `SignedNumeric`
+  /// Only available if `Scalar` conforms to `FixedWidthInteger` and `SignedInteger`
   ///
   /// - Parameter point: point to compute the distance for
   /// - Returns: signed squared euclidean distance between `point` and the surface of the bounding box
   /// - Remark: Uses overflow arithmetic. Neither magnitude nor sign of result is trustworthy on overflow
   func signedSquaredDistance(toPoint point: Point) -> Scalar {
-    if contains(point: point) {
+    guard !contains(point: point) else {
       let dMin = point &- minPoint
       let dMax = maxPoint &- point
       
       let dist = min(dMin.min(), dMax.min())
       
-      return dist &* dist
-    } else {
-      return squaredDistance(toPoint: point)
+      return -(dist &* dist)
     }
+    
+    return squaredDistance(toPoint: point)
   }
 }
