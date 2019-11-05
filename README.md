@@ -1,4 +1,4 @@
-# SwiftBoundingBox
+# SwiftBoundingBox [![Build Status](https://travis-ci.com/ithron/SwiftBoudingBox.svg?branch=master)](https://travis-ci.com/ithron/SwiftBoudingBox) [![codecov](https://codecov.io/gh/ithron/SwiftBoudingBox/branch/master/graph/badge.svg)](https://codecov.io/gh/ithron/SwiftBoudingBox)
 
 A generic 3D axis aligned bounding box implementation in Swift.
 The `BoundingBox` can be used with many scalar types. The minimum requirement is that the
