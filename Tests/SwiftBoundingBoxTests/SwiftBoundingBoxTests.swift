@@ -1,10 +1,27 @@
 @testable import SwiftBoundingBox
 import XCTest
 
+// MARK: - Common Tests
 final class SwiftBoundingBoxTestImpl<Scalar: Comparable & Numeric & SIMDScalar> {
   typealias BBox = BoundingBox<Scalar>
   typealias Point = BBox.Point
   typealias Size = BBox.Size
+  
+  func testCorrectInitializationOfMinPoint() {
+    let minPoint = Point(0, 1, 2)
+    let bbox = BBox(minPoint: minPoint,
+                    maxPoint: Point(3, 4, 5))
+    
+    XCTAssertEqual(bbox.minPoint, minPoint)
+  }
+  
+  func testCorrectInitializationOfMaxPoint() {
+    let maxPoint = Point(3, 4, 5)
+    let bbox = BBox(minPoint: Point(0, 1, 2),
+                    maxPoint: Point(3, 4, 5))
+    
+    XCTAssertEqual(bbox.maxPoint, maxPoint)
+  }
   
   func testIfBBContainsCorners() {
     let bbox = BBox(minPoint: Point(repeating: 0),
@@ -32,9 +49,12 @@ final class SwiftBoundingBoxTestImpl<Scalar: Comparable & Numeric & SIMDScalar> 
     
     XCTAssertFalse(bbox.contains(point: Point(2, 2, 2)))
   }
+  
 }
 
+// MARK: - FloatingPoint Tests
 extension SwiftBoundingBoxTestImpl where Scalar: FloatingPoint {
+  
   func testIfBBSizeIsCorrect() {
     let bbox = BBox(minPoint: Point(-1, 2, -3),
                     maxPoint: Point(5, 3, -3))
@@ -43,6 +63,37 @@ extension SwiftBoundingBoxTestImpl where Scalar: FloatingPoint {
     let refSize = Size(width: 6, height: 1, depth: 0)
     
     XCTAssertEqual(size, refSize)
+  }
+  
+  func testIfSizeInitializationIsCorrect() {
+    let size = Size(width: 10, height: 20, depth: 5)
+    let minPoint = Point(-1, 3, -7)
+    let maxPoint = Point(9, 23, -2)
+    let bbox = BBox(minPoint: minPoint, size: size)
+    
+    XCTAssertEqual(bbox.minPoint, minPoint)
+    XCTAssertEqual(bbox.maxPoint, maxPoint)
+    XCTAssertEqual(bbox.size, size)
+  }
+  
+  func testIfCenterIsCorrect() {
+    let bbox = BBox(minPoint: Point(-5, 0, 1),
+                    maxPoint: Point(1, 2, 3))
+    let center = Point(-2, 1, 2)
+    
+    XCTAssertEqual(bbox.center, center)
+  }
+  
+  func testIfCenterInitializationIsCorrect() {
+    let minPoint = Point(-5, 0, 1)
+    let maxPoint = Point(1, 2, 3)
+    let size = Size(width: 6, height: 2, depth: 2)
+    let center = Point(-2, 1, 2)
+    
+    let bbox = BBox(center: center, size: size)
+    
+    XCTAssertEqual(bbox.minPoint, minPoint)
+    XCTAssertEqual(bbox.maxPoint, maxPoint)
   }
   
   func testIfPointInsideBBHasDistanceZero() {
@@ -56,6 +107,7 @@ extension SwiftBoundingBoxTestImpl where Scalar: FloatingPoint {
   }
 }
 
+// MARK: - FixedWidthInteger Tests
 extension SwiftBoundingBoxTestImpl where Scalar: FixedWidthInteger {
   func testIfBBSizeIsCorrect() {
     let bbox = BBox(minPoint: Point(-1, 2, -3),
@@ -65,6 +117,17 @@ extension SwiftBoundingBoxTestImpl where Scalar: FixedWidthInteger {
     let refSize = Size(width: 6, height: 1, depth: 0)
     
     XCTAssertEqual(size, refSize)
+  }
+  
+  func testIfSizeInitializationIsCorrect() {
+    let size = Size(width: 10, height: 20, depth: 5)
+    let minPoint = Point(-1, 3, -7)
+    let maxPoint = Point(9, 23, -2)
+    let bbox = BBox(minPoint: minPoint, size: size)
+    
+    XCTAssertEqual(bbox.minPoint, minPoint)
+    XCTAssertEqual(bbox.maxPoint, maxPoint)
+    XCTAssertEqual(bbox.size, size)
   }
   
   func testIfPointInsideBBHasDistanceZero() {
@@ -77,9 +140,20 @@ extension SwiftBoundingBoxTestImpl where Scalar: FixedWidthInteger {
   }
 }
 
+// MARK: - Test Calls
 final class SwiftBoundingBoxTests: XCTestCase {
   let testImplFloat = SwiftBoundingBoxTestImpl<Float>()
   let testImplInt64 = SwiftBoundingBoxTestImpl<Int64>()
+  
+  func testCorrectInitializationOfMinPoint() {
+    testImplFloat.testCorrectInitializationOfMinPoint()
+    testImplInt64.testCorrectInitializationOfMinPoint()
+  }
+  
+  func testCorrectInitializationOfMaxPoint() {
+    testImplFloat.testCorrectInitializationOfMaxPoint()
+    testImplInt64.testCorrectInitializationOfMaxPoint()
+  }
   
   func testIfBBContainsCorners() {
     testImplFloat.testIfBBContainsCorners()
@@ -94,6 +168,19 @@ final class SwiftBoundingBoxTests: XCTestCase {
   func testIfBBSizeIsCorrect() {
     testImplFloat.testIfBBSizeIsCorrect()
     testImplInt64.testIfBBSizeIsCorrect()
+  }
+  
+  func testIfSizeInitializationIsCorrect() {
+    testImplFloat.testIfSizeInitializationIsCorrect()
+    testImplInt64.testIfSizeInitializationIsCorrect()
+  }
+  
+  func testIfCenterIsCorrect() {
+    testImplFloat.testIfCenterIsCorrect()
+  }
+  
+  func testIfCenterInitializationIsCorrect() {
+    testImplFloat.testIfCenterInitializationIsCorrect()
   }
   
   func testIfPointInsideBBHasDistanceZero() {
